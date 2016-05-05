@@ -11,8 +11,11 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		FileHandler fileHandler = new FileHandler();
 		String[] extensions = new String[1];
+		List<String> dataTypes = fileHandler.loadDataTypesFromFile(args[1]); 
 		extensions[0] = "dif";
-		List<File> fileList = fileHandler.getFilesByExtension(args[0], extensions);
-		new DataProcessor().parseFilesToTables(fileList);
+		List<File> fileList = fileHandler.getFilesByExtension(args[0], extensions);		
+		DataProcessor dp = new DataProcessor(dataTypes);
+		
+		fileHandler.writeXLSFile("e://suIT//tabla_teszt_2.xls", "teszt_2", dp.parseFilesToTables(fileList));
 	}
 }
