@@ -5,8 +5,8 @@ import java.util.List;
 
 public class Table {
 	
-	private String tableName, tableDescription;
-	
+	private String tableName, tableDescription, tableUOM;
+
 	private List<Row> rows;
 	
 	public Table() {		
@@ -32,6 +32,13 @@ public class Table {
 		this.tableDescription = tableDescription;
 	}
 
+	public String getTableUOM() {
+		return tableUOM;
+	}
+
+	public void setTableUOM(String tableUOM) {
+		this.tableUOM = tableUOM;
+	}
 	
 	public List<Row> getRows() {
 		return rows;

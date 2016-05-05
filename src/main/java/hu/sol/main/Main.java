@@ -16,6 +16,7 @@ public class Main {
 		List<File> fileList = fileHandler.getFilesByExtension(args[0], extensions);		
 		DataProcessor dp = new DataProcessor(dataTypes);
 		
-		fileHandler.writeXLSFile("e://suIT//tabla_teszt_2.xls", "teszt_2", dp.parseFilesToTables(fileList));
+		dp.parseFilesToTables(fileList);
+		fileHandler.writeXLSFile("e://suIT//tabla_teszt_3.xls", "teszt_2", dp.parseFilesToTables(fileList));
 	}
 }

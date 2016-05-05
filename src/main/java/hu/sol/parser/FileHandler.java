@@ -52,12 +52,36 @@ public class FileHandler {
 	public void writeXLSFile(String outputFileName, String sheetName, List<Table> tables) throws IOException {
 		HSSFWorkbook workbook = new HSSFWorkbook();
 		HSSFSheet sheet = workbook.createSheet(sheetName) ;
-
+		HSSFRow hssfRow = sheet.createRow(sheet.getLastRowNum());
+		HSSFCell hssfCell = hssfRow.createCell(hssfRow.getLastCellNum() + 1);		
+		
+		hssfCell.setCellValue("Tábla");
+		hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());		
+		hssfCell.setCellValue("Mező Neve");
+		hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());		
+		hssfCell.setCellValue("Mező Típusa");
+		hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());		
+		hssfCell.setCellValue("Mező Leírása");
+		hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());		
+		hssfCell.setCellValue("ÜOM");
+		System.out.println(hssfCell.getStringCellValue() + hssfCell.getRowIndex()+hssfCell.getColumnIndex());
+		//hssfRow = sheet.createRow(sheet.getLastRowNum());
+		
 		for(Table table : tables) {
+			hssfRow = sheet.createRow(sheet.getLastRowNum() + 1);
+			hssfCell = hssfRow.createCell(hssfRow.getLastCellNum() + 1);
+			hssfCell.setCellValue(table.getTableName());
+			hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
+			hssfCell.setCellValue(table.getTableDescription());
+			hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
+			hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
+			hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
+			hssfCell.setCellValue(table.getTableUOM());
+
 			for(Row row : table.getRows()) {
-				HSSFRow hssfRow = sheet.createRow(sheet.getLastRowNum() + 1);
+				hssfRow = sheet.createRow(sheet.getLastRowNum() + 1);
 								
-				HSSFCell hssfCell = hssfRow.createCell(hssfRow.getLastCellNum() + 1);
+				hssfCell = hssfRow.createCell(hssfRow.getLastCellNum() + 1);
 				hssfCell.setCellValue(table.getTableName());
 				hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
 				hssfCell.setCellValue(row.getField().getFieldName());
