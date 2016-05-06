@@ -22,7 +22,7 @@ public class FileHandler {
 
 	public List<File> getFilesByExtension(String dir, String[] extensions) throws Exception {		
 		File baseDir = new File(dir);
-
+		
 		if (!baseDir.exists() || !baseDir.isDirectory()) {
 			throw new FileNotFoundException("Input is expected to be absolute path to directory.");
 		} else return (List<File>)(FileUtils.listFiles(baseDir, extensions, true));
