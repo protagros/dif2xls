@@ -6,26 +6,44 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import hu.sol.parser.bean.*;
 
 public class DataProcessor {
-
+	
+	private static final String DEFAULT_REGEX = "[A-Z]+\\d*\\(?\\d*,?\\d*\\)?";
+	
 	private String tableName = null, 
 			tableDescription = null,	
-					tableUOM = null;
-					
+					tableUOM = null,
+					   regex = null;
+	
+	private boolean useDefaultRegex;
 	private List<String> dataTypes;
 
+	
+	public DataProcessor() {
+		this.useDefaultRegex = true;
+	}
+	
+	public DataProcessor(String regex) {
+		if(!(regex == null) && !(regex == "")) {
+			this.regex = regex;
+		} else {
+			throw new IllegalArgumentException("Regular expression format is illegal or too vague.");				
+		}
+	}
+	
 	public DataProcessor(List<String> dataTypes) {
 		this.dataTypes = dataTypes;
 	}
 
 	public List<Table> parseFilesToTables(List<File> files) throws IOException {
 		List<Table> tables = new ArrayList<Table>();
-
 		for (File file : files) {
-			tables.add(parseFileIntoTable(file));
+			tables.add(parseFileIntoTable(file));			
 		}
 
 		return tables;
@@ -100,10 +118,27 @@ public class DataProcessor {
 	}
 
 	private String searchForDataType(String line) {
-		for (String dataType : dataTypes) {
-			if (line.lastIndexOf(dataType) >= 0)
-				return dataType;
-		} 		
+		if (useDefaultRegex) {
+			return findFirstRegexMatch(DEFAULT_REGEX, line);
+		} else if (regex != null) {
+			return findFirstRegexMatch(regex, line);
+		} else {
+			for (String dataType : dataTypes) {
+				if (line.lastIndexOf(dataType) >= 0) {
+					return dataType;
+				}
+			}
+		}
+		
 		throw new RuntimeException("Runtime exception: unknown data type in line:\n" + line);
+	}
+
+	private String findFirstRegexMatch(String regex, String line) {
+		Pattern regexInput = Pattern.compile(regex);		
+		Matcher regexMatcher = regexInput.matcher(line);
+		
+		if(regexMatcher.find()) {
+			return regexMatcher.group(0);
+		} else throw new RuntimeException("Runtime exception: regular expression " + regex + " couldn't be matched to:\n" + line);
 	}
 }
