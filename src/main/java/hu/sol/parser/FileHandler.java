@@ -24,7 +24,7 @@ public class FileHandler {
 		File baseDir = new File(dir);
 
 		if (!baseDir.exists() || !baseDir.isDirectory()) {
-			throw new FileNotFoundException("Input is expected to be path of a directory.");
+			throw new FileNotFoundException("Input is expected to be absolute path to directory.");
 		} else return (List<File>)(FileUtils.listFiles(baseDir, extensions, true));
 	}
 	
@@ -32,7 +32,7 @@ public class FileHandler {
 		File dataTypesFile = new File(file);
 		List<String> dataTypes = new ArrayList<String>();
 		if (!dataTypesFile.exists() || dataTypesFile.isDirectory()) {
-			throw new FileNotFoundException("Input is expected to be a file in a directory.");
+			throw new FileNotFoundException("Input is expected to be absolute path to file.");
 		} else {
 			FileReader fileReader = new FileReader(file);
 			BufferedReader buffReader = new BufferedReader(fileReader);
@@ -49,55 +49,65 @@ public class FileHandler {
 		return dataTypes;
 	}		
 	
-	public void writeXLSFile(String outputFileName, String sheetName, List<Table> tables) throws IOException {
-		HSSFWorkbook workbook = new HSSFWorkbook();
-		HSSFSheet sheet = workbook.createSheet(sheetName);
-		List<String> fieldNames, headerNames, cellValues;
-		
-		fieldNames = new ArrayList<String>(0);
-		fieldNames.add("Tábla");
-		fieldNames.add("Mező Neve");
-		fieldNames.add("Mező Típusa");
-		fieldNames.add("Mező Leírása");
-		fieldNames.add("ÜOM");
-		
-		createHSSFRow(sheet, fieldNames);
-		
-		for(Table table : tables) {
-			headerNames = new ArrayList<String>(0);
-			
-			headerNames.add(table.getTableName());
-			headerNames.add(table.getTableDescription());
-			headerNames.add("");
-			headerNames.add("");
-			headerNames.add(table.getTableUOM());
+	public void writeXLSFile(String outDirName, String outFileName, String sheetName, List<Table> tables) throws IOException {
+		HSSFWorkbook workbook;
+		File file = new File(outDirName);
 
-			createHSSFRow(sheet, headerNames);
-			
-			for(Row row : table.getRows()) {
-				cellValues = new ArrayList<String>(0);
-				
-				cellValues.add(table.getTableName());
-				cellValues.add(row.getField().getFieldName());
-				cellValues.add(row.getField().getDataType());
-				if(row.getUOM() != null) {
-					cellValues.add(row.getDescription() + row.getUOM());
-				} else cellValues.add(row.getDescription());				
-				cellValues.add(row.getUOM());
-				
-				createHSSFRow(sheet, cellValues);
+		if(file.isAbsolute()) {
+			if(!file.exists()) {
+				file.mkdirs();
+				if(!file.exists()) {
+					throw new IOException("Output directory couldn't be created.");
+				}
 			}
-		}
-		
-		FileOutputStream fileOutStream = new FileOutputStream(outputFileName);
-		
-		workbook.write(fileOutStream);	
-		fileOutStream.flush();
-		fileOutStream.close();
-		workbook.close();
+			
+			String outputFileName = outDirName + File.separator + outFileName;
+			FileOutputStream fileOutStream = new FileOutputStream(outputFileName);
+			workbook = new HSSFWorkbook();
+			
+			createHSSFWorkbook(workbook, sheetName, tables);
+			
+			workbook.write(fileOutStream);	
+			fileOutStream.flush();
+			fileOutStream.close();
+			workbook.close();					
+		} else throw new IOException("Output path needs to be absolute.");
 	}
 	
-	private HSSFRow createHSSFRow(HSSFSheet sheet, List<String> cellValues) {
+	private void createHSSFWorkbook(HSSFWorkbook workbook, String sheetName, List<Table> tables) throws NullPointerException {
+		if (workbook != null) {
+			HSSFSheet sheet = workbook.createSheet(sheetName);
+			List<String> fieldNames, cellValues;
+
+			fieldNames = new ArrayList<String>(0);
+			fieldNames.add("Tábla");
+			fieldNames.add("Mező Neve");
+			fieldNames.add("Mező Típusa");
+			fieldNames.add("Mező Leírása");
+			fieldNames.add("ÜOM");
+
+			createHSSFRow(sheet, fieldNames);
+
+			for (Table table : tables) {
+				for (Row row : table.getRows()) {
+					cellValues = new ArrayList<String>(0);
+
+					cellValues.add(table.getTableName());
+					cellValues.add(row.getField().getFieldName());
+					cellValues.add(row.getField().getDataType());
+					if (row.getUOM() != null) {
+						cellValues.add(row.getDescription() + row.getUOM());
+					} else
+						cellValues.add(row.getDescription());
+					cellValues.add(row.getUOM());
+
+					createHSSFRow(sheet, cellValues);
+				}
+			}
+		} else throw new NullPointerException("Excel workbook was null.");
+	}
+	
+	private void createHSSFRow(HSSFSheet sheet, List<String> cellValues) {
 		HSSFRow newRow = sheet.createRow(sheet.getLastRowNum() + 1);
 		HSSFCell nextCell = newRow.createCell(newRow.getLastCellNum() + 1);
 		
@@ -105,7 +115,5 @@ public class FileHandler {
 			nextCell.setCellValue(value);
 			nextCell = newRow.createCell((int)newRow.getLastCellNum());
 		}
-		
-		return newRow;
 	}
 }

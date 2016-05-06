@@ -103,11 +103,7 @@ public class DataProcessor {
 		for (String dataType : dataTypes) {
 			if (line.lastIndexOf(dataType) >= 0)
 				return dataType;
-		} 
-		
-		String message = "Unknown Datatype in line: " + line;
-		System.out.println(message);
-		
-		return message;
+		} 		
+		throw new RuntimeException();
 	}
 }

@@ -1,7 +1,6 @@
 package hu.sol.main;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -21,12 +20,10 @@ public class Main {
 	private static Options options = new Options();
 	
 	public static void main(String[] args) throws Exception {		
-		System.setProperty("file.encoding", "UTF-8");
 		setOptions();
 		if(args.length != 0) {			
 			CommanderKeen(createParser(args));
 		} else printHelp();
-		System.out.println(Charset.defaultCharset());
 	}
 	
 	@SuppressWarnings("all")
@@ -38,7 +35,7 @@ public class Main {
 										isRequired().
 										hasArg().withArgName("PATH").
 										create("indir"));
-		options.addOption(OptionBuilder.withDescription("directory of output files (created if missing)").
+		options.addOption(OptionBuilder.withDescription("directory of output files (gets created if missing)").
 										isRequired().
 										hasArg().withArgName("PATH").
 										create("outdir"));
@@ -50,11 +47,16 @@ public class Main {
 										withDescription("output filename with extension").
 										isRequired().
 										hasArg().withArgName("FILENAME").
-										create("f"));		
+										create("f"));
+		options.addOption(OptionBuilder.withLongOpt("sheet").
+										withDescription("output filename with extension").
+										isRequired().
+										hasArg().withArgName("SHEETNAME").
+										create("s"));		
 		options.addOption(OptionBuilder.withLongOpt("extensions").
 										withDescription("comma separated list of extensions to look for under root directory").
 										isRequired().
-										hasArgs().withArgName("LIST-EXTENSIONS").
+										hasArgs().withArgName("file1,file2,..fn").
 										withValueSeparator(',').
 										create("exts"));
 	}
@@ -89,8 +91,7 @@ public class Main {
 				 List<File> fileList = fileHandler.getFilesByExtension(cmd.getOptionValue("indir"), extensions);
 				 DataProcessor dp = new DataProcessor(dataTypes);
 				
-				 dp.parseFilesToTables(fileList);
-				 fileHandler.writeXLSFile(cmd.getOptionValue("outdir")+cmd.getOptionValue("outfile"), "teszt_2", dp.parseFilesToTables(fileList));
+				 fileHandler.writeXLSFile(cmd.getOptionValue("outdir"), cmd.getOptionValue("outfile"), cmd.getOptionValue("sheet"), dp.parseFilesToTables(fileList));
 			}
 		}
 	}
