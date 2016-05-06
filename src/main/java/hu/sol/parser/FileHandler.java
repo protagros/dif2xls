@@ -8,10 +8,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.codec.Encoder;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -51,55 +54,61 @@ public class FileHandler {
 	
 	public void writeXLSFile(String outputFileName, String sheetName, List<Table> tables) throws IOException {
 		HSSFWorkbook workbook = new HSSFWorkbook();
-		HSSFSheet sheet = workbook.createSheet(sheetName) ;
-		HSSFRow hssfRow = sheet.createRow(sheet.getLastRowNum());
-		HSSFCell hssfCell = hssfRow.createCell(hssfRow.getLastCellNum() + 1);		
+		HSSFSheet sheet = workbook.createSheet(sheetName);
+		List<String> fieldNames, headerNames, cellValues;
 		
-		hssfCell.setCellValue("Tábla");
-		hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());		
-		hssfCell.setCellValue("Mező Neve");
-		hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());		
-		hssfCell.setCellValue("Mező Típusa");
-		hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());		
-		hssfCell.setCellValue("Mező Leírása");
-		hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());		
-		hssfCell.setCellValue("ÜOM");
-		System.out.println(hssfCell.getStringCellValue() + hssfCell.getRowIndex()+hssfCell.getColumnIndex());
-		//hssfRow = sheet.createRow(sheet.getLastRowNum());
+		fieldNames = new ArrayList<String>(0);
+		fieldNames.add("Tábla");
+		fieldNames.add("Mező Neve");
+		fieldNames.add("Mező Típusa");
+		fieldNames.add("Mező Leírása");
+		fieldNames.add("ÜOM");
+		
+		createHSSFRow(sheet, fieldNames);
 		
 		for(Table table : tables) {
-			hssfRow = sheet.createRow(sheet.getLastRowNum() + 1);
-			hssfCell = hssfRow.createCell(hssfRow.getLastCellNum() + 1);
-			hssfCell.setCellValue(table.getTableName());
-			hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
-			hssfCell.setCellValue(table.getTableDescription());
-			hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
-			hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
-			hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
-			hssfCell.setCellValue(table.getTableUOM());
+			headerNames = new ArrayList<String>(0);
+			
+			headerNames.add(table.getTableName());
+			headerNames.add(table.getTableDescription());
+			headerNames.add("");
+			headerNames.add("");
+			headerNames.add(table.getTableUOM());
 
+			createHSSFRow(sheet, headerNames);
+			
 			for(Row row : table.getRows()) {
-				hssfRow = sheet.createRow(sheet.getLastRowNum() + 1);
-								
-				hssfCell = hssfRow.createCell(hssfRow.getLastCellNum() + 1);
-				hssfCell.setCellValue(table.getTableName());
-				hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
-				hssfCell.setCellValue(row.getField().getFieldName());
-				hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
-				hssfCell.setCellValue(row.getField().getDataType());
-				hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
-				hssfCell.setCellValue(row.getDescription());
-				hssfCell = hssfRow.createCell((int)hssfRow.getLastCellNum());
-				hssfCell.setCellValue(row.getUOM());
+				cellValues = new ArrayList<String>(0);
+				
+				cellValues.add(table.getTableName());
+				cellValues.add(row.getField().getFieldName());
+				cellValues.add(row.getField().getDataType());
+				if(row.getUOM() != null) {
+					cellValues.add(row.getDescription() + row.getUOM());
+				} else cellValues.add(row.getDescription());				
+				cellValues.add(row.getUOM());
+				
+				createHSSFRow(sheet, cellValues);
 			}
-			sheet.createRow(sheet.getLastRowNum() + 1);
 		}
 		
 		FileOutputStream fileOutStream = new FileOutputStream(outputFileName);
 		
-		workbook.write(fileOutStream);		
+		workbook.write(fileOutStream);	
 		fileOutStream.flush();
 		fileOutStream.close();
 		workbook.close();
-	}	
+	}
+	
+	private HSSFRow createHSSFRow(HSSFSheet sheet, List<String> cellValues) {
+		HSSFRow newRow = sheet.createRow(sheet.getLastRowNum() + 1);
+		HSSFCell nextCell = newRow.createCell((int)newRow.getLastCellNum() + 1);
+		
+		for(String value : cellValues) {								
+			nextCell.setCellValue(value);
+			nextCell = newRow.createCell((int)newRow.getLastCellNum());
+		}
+		
+		return newRow;
+	}
 }

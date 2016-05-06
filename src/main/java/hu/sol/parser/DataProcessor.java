@@ -12,7 +12,9 @@ import hu.sol.parser.bean.*;
 public class DataProcessor {
 
 	private String tableName = null, 
+			tableDescription = null,	
 					tableUOM = null;
+					
 	private List<String> dataTypes;
 
 	public DataProcessor(List<String> dataTypes) {
@@ -43,9 +45,12 @@ public class DataProcessor {
 				table.addRow(row);
 			} else if (table.getTableName() == null) {
 				table.setTableName(this.tableName);
-				if(tableUOM != null) {
-					table.setTableUOM(tableUOM);
-				}				
+				if(this.tableUOM != null) {
+					table.setTableUOM(this.tableUOM);
+				}
+				if(this.tableDescription != null) {
+					table.setTableDescription(this.tableDescription);
+				}
 			}
 		}
 
@@ -62,11 +67,13 @@ public class DataProcessor {
 		if (line.lastIndexOf("TABLE") >= 0) {
 			tableUOM = null;
 			line = line.substring(5);
-			this.tableName = (line.split("\\p{javaUpperCase}"))[0];
+			this.tableName = (line.split("\\p{javaUpperCase}"))[0];			
 			uomIndex = line.lastIndexOf("ÜOM");
+			
 			if(uomIndex >= 0) {
-				this.tableUOM = line.substring(uomIndex + 4);
-			}
+				this.tableUOM = line.substring(uomIndex);
+				this.tableDescription = line.substring(this.tableName.length(), uomIndex);
+			} else this.tableDescription = line.substring(this.tableName.length());
 				
 			return null;
 		}
@@ -83,8 +90,8 @@ public class DataProcessor {
 			row.setField(field);
 			uomIndex = line.lastIndexOf("ÜOM");						
 			int	dataTypeEnd = line.lastIndexOf((field.getDataType())) + field.getDataType().length();
-			if(uomIndex >= 0) { 
-				row.setUOM(line.substring(uomIndex + 4));
+			if(uomIndex >= 0) { 				
+				row.setUOM(line.substring(uomIndex));
 				row.setDescription(line.substring(dataTypeEnd, uomIndex));
 			} else row.setDescription(line.substring(dataTypeEnd));
 		}
