@@ -8,13 +8,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.codec.Encoder;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -102,7 +99,7 @@ public class FileHandler {
 	
 	private HSSFRow createHSSFRow(HSSFSheet sheet, List<String> cellValues) {
 		HSSFRow newRow = sheet.createRow(sheet.getLastRowNum() + 1);
-		HSSFCell nextCell = newRow.createCell((int)newRow.getLastCellNum() + 1);
+		HSSFCell nextCell = newRow.createCell(newRow.getLastCellNum() + 1);
 		
 		for(String value : cellValues) {								
 			nextCell.setCellValue(value);
