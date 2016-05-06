@@ -44,12 +44,12 @@ public class Main {
 										hasArg().withArgName("FILENAME").
 										create("outfile"));
 		options.addOption(OptionBuilder.withLongOpt("filter").
-										withDescription("output filename with extension").
+										withDescription("path to file with all known datatypes").
 										isRequired().
 										hasArg().withArgName("FILENAME").
 										create("f"));
 		options.addOption(OptionBuilder.withLongOpt("sheet").
-										withDescription("output filename with extension").
+										withDescription("output excel sheet name").
 										isRequired().
 										hasArg().withArgName("SHEETNAME").
 										create("s"));		

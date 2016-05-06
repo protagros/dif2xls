@@ -104,6 +104,6 @@ public class DataProcessor {
 			if (line.lastIndexOf(dataType) >= 0)
 				return dataType;
 		} 		
-		throw new RuntimeException();
+		throw new RuntimeException("Runtime exception: unknown data type in line:\n" + line);
 	}
 }
