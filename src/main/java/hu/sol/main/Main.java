@@ -54,6 +54,9 @@ public class Main {
 		options.addOption(OptionBuilder.withLongOpt("help").
 										withDescription("prints help").
 										create("h"));
+		options.addOption(OptionBuilder.withLongOpt("verbose").
+										withDescription("tells user how command line arguments have been interpreted").
+										create("v"));		
 		options.addOption(OptionBuilder.withDescription("root directory of files to be scanned (recursively)").
 										isRequired().
 										hasArg().withArgName("PATH").
@@ -154,9 +157,11 @@ public class Main {
 					dataTypes = fileHandler.loadDataTypesFromFile(filterFilePath);
 				}
 								 
-				fileList = fileHandler.getFilesByExtension(inDir, extensions);				
+				fileList = fileHandler.getFilesByExtension(inDir, extensions);											
 				
-				getInfo(regex, inDir, outDir, outFile, sheetName, extensions, dataTypes, fileList);
+				if (cmd.hasOption('v')) {
+					getInfo(regex, inDir, outDir, outFile, sheetName, extensions, dataTypes, fileList);
+				}
 				
 				fileHandler.writeXLSFile(outDir, outFile, sheetName, dataProcessor.parseFilesToTables(fileList));
 			}
