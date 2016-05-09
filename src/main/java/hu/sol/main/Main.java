@@ -19,7 +19,8 @@ import hu.sol.parser.FileHandler;
 @SuppressWarnings("deprecation")
 public class Main {
 
-	private static final String DEFAULT_OUTPUT_FILENAME = "bi_report.xls";	
+	private static final String DEFAULT_OUTPUT_FILENAME = "bi_report.xls";
+	private static final String DEFAULT_INPUT_FILTER_FILENAME = "datatypes.lst";
 	private static final String DEFAULT_OUTPUT_SHEETNAME = "bi_report_sheet";
 	private static final String DEFAULT_INPUT_EXTENSION = "dif";
 	private static final String HELP_HEADER = "\n\nThe list of commands available\n\n";
@@ -47,20 +48,20 @@ public class Main {
 													create("f"));
 		dataTypesOptionGroup.addOption(OptionBuilder.withLongOpt("regex").
 													withDescription("regular expression to match datatypes with (uses default regex if no argument received)").
-													hasOptionalArg().withArgName("REGULAR EXPRESSION").
+													hasOptionalArg().withArgName("REGEX").
 													create("r"));
 				
 		options.addOption(OptionBuilder.withLongOpt("help").
-										withDescription("prints commands with their descriptions").
+										withDescription("prints help").
 										create("h"));
-		options.addOption(OptionBuilder.withDescription("root directory of scannable files (scan is recursive)").
+		options.addOption(OptionBuilder.withDescription("root directory of files to be scanned (recursively)").
 										isRequired().
 										hasArg().withArgName("PATH").
 										create("indir"));
-		options.addOption(OptionBuilder.withDescription("directory of output files (gets created if missing)").
+		options.addOption(OptionBuilder.withDescription("directory of output file").
 										hasArg().withArgName("PATH").
 										create("outdir"));
-		options.addOption(OptionBuilder.withDescription("output filename with extension").
+		options.addOption(OptionBuilder.withDescription("output filename").
 										hasArg().withArgName("FILENAME").
 										create("outfile"));
 		options.addOption(OptionBuilder.withLongOpt("sheet").
@@ -97,7 +98,7 @@ public class Main {
 		String[] extensions = null;
 		List<String> dataTypes = null;
 		List<File> fileList = null;		
-		DataProcessor dataProcessor = null;
+		DataProcessor dataProcessor = new DataProcessor();
 		FileHandler fileHandler = new FileHandler();
 		
 		if (cmd != null) {
@@ -108,19 +109,19 @@ public class Main {
 					if (cmd.getOptionValue('f') != null) {
 						filterFilePath = cmd.getOptionValue('f');						
 					} else {
-						filterFilePath = appRootDir + "/datatypes.lst";
+						filterFilePath = appRootDir + "/" + DEFAULT_INPUT_FILTER_FILENAME;						
 					}
 					dataTypes = fileHandler.loadDataTypesFromFile(filterFilePath);
 					dataProcessor = new DataProcessor(dataTypes);
 				} else {
 					if (cmd.hasOption('r')) {
+						System.out.println("regex");
 						if (cmd.getOptionValue('r') != null) {
+							System.out.println("van érték");
 							regex = cmd.getOptionValue('r');
 							dataProcessor = new DataProcessor(regex);
-						} 					
-					} else {
-						dataProcessor = new DataProcessor();
-					}				
+						}
+					}
 				}
 				
 				if(cmd.hasOption("indir")) {
@@ -169,23 +170,23 @@ public class Main {
 		
 		System.out.println("input directory: " + inDir);
 		
-		System.out.println("extensions: ");
+		System.out.println("using extensions: ");
 		for(String ext : extensions) {
 			System.out.println("\t" + ext);
 		}
 		
-		System.out.println("files: " + fileList.size());
+		System.out.println("processing files: " + fileList.size());
 		
 		System.out.println("output file: " + outDir + "\\" + outFile);
 		System.out.println("output sheetname: " + sheetName);
 		
 		if(dataTypes != null) {
-			System.out.println("types:");
+			System.out.println("data types checked:");
 			for(String type : dataTypes) {
 				System.out.println(type);
 			}
 		} else if(regex != null) {
 			System.out.println("regex:\n" + regex);
-		} else System.out.println("regex: SYSTEM DEFAULT");
+		} else System.out.println("regex: SYSTEM DEFAULT\n\t[A-Z]+\\d*\\(?\\d*,?\\d*\\)?");
 	}
 }
